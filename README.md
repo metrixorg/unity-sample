@@ -1,4 +1,4 @@
-## Sample Application For Metrix Unity SDK
+## Sample Application for Metrix Unity Package
 
 <div dir="rtl">
   
