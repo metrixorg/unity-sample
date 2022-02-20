@@ -16,6 +16,12 @@ public class MetrixMessageHandler : MonoBehaviour {
 		Metrix.OnReceiveUserIdListener(userId);
 	}
 
+	public void SessionIDChangeListener(String sessionId) {
+		Metrix.SessionIDChangeListener(sessionId);
+	}
 
+	public void SessionNumberChangeListener(String sessionNum) {
+		Metrix.SessionNumberChangeListener(sessionNum);
+	}
 
 }

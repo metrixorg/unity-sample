@@ -9,6 +9,7 @@ public class Main : MonoBehaviour
     {
         Metrix.Initialize("lcqmfsnvhzznvhe");
 
+        // Optional
         Metrix.SetOnAttributionChangedListener(AttributionChangedCallback);
 
         Metrix.NewEvent("jqgjh");
@@ -22,22 +23,30 @@ public class Main : MonoBehaviour
         Metrix.NewRevenue("prfrn", 23.44, "someOrderId");
         Metrix.NewRevenue("prfrn", 23.44, 2, "someOtherOrderId");
 
+        // Optional
         Metrix.SetPushToken("token");
 
+        // Optional
         Metrix.SetShouldLaunchDeeplink(true);
         Metrix.SetOnDeeplinkResponseListener(DeeplinkCallback);
 
+        // Optional
         Metrix.SetDefaultTracker("uevt4h");
         
+        // Optional
         Metrix.SetAppSecret(1, 429751687, 1057026454, 796046595, 610423971);
         
+        // Optional
         Metrix.SetStore("App Store");
 
+        // Optional
         Metrix.SetUserIdListener(UserIdCallback);
 
-        Debug.Log("[MetrixExample]: SessionId: " + Metrix.GetSessionId());
-        Debug.Log("[MetrixExample]: SessionNum: " + Metrix.GetSessionNum());
+        // Optional
+        Metrix.SetSessionIdListener(SessionIdCallback);
+        Metrix.SetSessionNumberListener(SessionNumberCallback);
 
+        // Optional
         var attributes2 = new Dictionary<string, string>();
         attributes2.Add("first", "Ken");
         attributes2.Add("last", "Adams");
@@ -52,6 +61,11 @@ public class Main : MonoBehaviour
     public void SessionIdCallback(string sessionId)
     {
         Debug.Log("[MetrixExample]: SessionId listener called. ID: " + sessionId);
+    }
+
+    public void SessionNumberCallback(int sessionNumber)
+    {
+        Debug.Log("[MetrixExample]: SessionNumber listener called. Number: " + sessionNumber);
     }
 
     public void AttributionChangedCallback(MetrixAttribution attribution)

@@ -5,8 +5,6 @@
 @interface MetrixPlugin: NSObject
 
 - (void) initializeWithMetrixAppId:(NSString * _Nonnull)appId;
-- (NSInteger) getSessionNum;
-- (NSString *) getSessionId;
 - (void) newEventWithSlug:(NSString * _Nonnull)slug;
 - (void) newEventWithSlug:(NSString * _Nonnull)slug attributes:(NSDictionary<NSString *, NSString *> * _Nonnull)attributes;
 - (void) newRevenueWithSlug:(NSString * _Nonnull)slug revenue:(double)revenue;
@@ -19,6 +17,8 @@
 - (void) setAppSecretWithSecretId:(NSInteger)secretId info1:(NSInteger)info1 info2:(NSInteger)info2 info3:(NSInteger)info3 info4:(NSInteger)info4;
 - (void) setDefaultTrackerWithTrackerToken:(NSString * _Nonnull)trackerToken;
 - (void) setUserIdListener;
+- (void) setSessionIdListener;
+- (void) setSessionNumberListener;
 - (void) setOnDeeplinkResponseListener:(bool)shouldLaunchDeferredDeeplink;
 - (void) setOnAttributionChangedListener;
 
@@ -30,6 +30,8 @@ static NSString *MANAGER_OBJECT = @"MetrixManager";
 static NSString *ON_DEFERRED_DEEPLINK = @"OnDeferredDeeplink";
 static NSString *ON_RECEIVE_USER_ID_LISTENER = @"OnReceiveUserIdListener";
 static NSString *ON_ATTRIBUTION_CHANGE_LISTENER = @"OnAttributionChangeListener";
+static NSString *SESSION_ID_CHANGE_LISTENER = @"SessionIDChangeListener";
+static NSString *SESSION_NUMBER_CHANGE_LISTENER = @"SessionNumberChangeListener";
 
 + (MetrixPlugin*) sharedInstance {
     static MetrixPlugin * instance = nil;
@@ -42,84 +44,88 @@ static NSString *ON_ATTRIBUTION_CHANGE_LISTENER = @"OnAttributionChangeListener"
 
 - (void) initializeWithMetrixAppId:(NSString * _Nonnull)appId
 {
-    [Metrix initializeWithMetrixAppId:appId];
+    [MetrixClient initializeWithMetrixAppId:appId];
 }
 
-- (NSInteger) getSessionNum
+- (void) setSessionNumberListener
 {
-    return [Metrix getSessionNum];
+    [MetrixClient setSessionNumberListener:^(NSInteger sessionNumber) {
+        UnitySendMessage([MANAGER_OBJECT UTF8String], [SESSION_NUMBER_CHANGE_LISTENER UTF8String], [[NSString stringWithFormat:@"%ld", (long)sessionNumber] UTF8String]);
+    }];
 }
 
-- (NSString *) getSessionId
+- (void) setSessionIdListener
 {
-    return [Metrix getSessionId];
+    [MetrixClient setSessionIdListener:^(NSString *sessionId) {
+        UnitySendMessage([MANAGER_OBJECT UTF8String], [SESSION_ID_CHANGE_LISTENER UTF8String], [sessionId UTF8String]);
+    }];
 }
 
 - (void) newEventWithSlug:(NSString * _Nonnull)slug
 {
-    [Metrix newEventWithSlug:slug];
+    [MetrixClient newEventWithSlug:slug];
 }
 
 - (void) newEventWithSlug:(NSString * _Nonnull)slug attributes:(NSDictionary<NSString *, NSString *> * _Nonnull)attributes
 {
-    [Metrix newEventWithSlug:slug attributes:attributes];
+    [MetrixClient newEventWithSlug:slug attributes:attributes];
 }
 
 - (void) newRevenueWithSlug:(NSString * _Nonnull)slug revenue:(double)revenue
 {
-    [Metrix newRevenueWithSlug:slug revenue:revenue];
+    [MetrixClient newRevenueWithSlug:slug revenue:revenue];
 }
 
 - (void) newRevenueWithSlug:(NSString * _Nonnull)slug revenue:(double)revenue currency:(NSInteger)currency
 {
-    [Metrix newRevenueWithSlug:slug revenue:revenue currency:(RevenueCurrency)currency];
+    [MetrixClient newRevenueWithSlug:slug revenue:revenue currency:(RevenueCurrency)currency];
 }
 
 - (void) newRevenueWithSlug:(NSString * _Nonnull)slug revenue:(double)revenue orderId:(NSString * _Nonnull)orderId
 {
-    [Metrix newRevenueWithSlug:slug revenue:revenue orderId:orderId];
+    [MetrixClient newRevenueWithSlug:slug revenue:revenue orderId:orderId];
 }
 
 - (void) newRevenueWithSlug:(NSString * _Nonnull)slug revenue:(double)revenue currency:(NSInteger)currency orderId:(NSString * _Nullable)orderId
 {
-    [Metrix newRevenueWithSlug:slug revenue:revenue currency:(RevenueCurrency)currency orderId:orderId];
+    [MetrixClient newRevenueWithSlug:slug revenue:revenue currency:(RevenueCurrency)currency orderId:orderId];
 }
 
 - (void) addUserAttributesWithUserAttrs:(NSDictionary<NSString *, NSString *> * _Nonnull)userAttrs
 {
-    [Metrix addUserAttributesWithUserAttrs:userAttrs];
+    [MetrixClient addUserAttributesWithUserAttrs:userAttrs];
 }
 
 - (void) setPushTokenWithPushToken:(NSString * _Nonnull)token
 {
-    [Metrix setPushTokenWithPushToken:token];
+    [MetrixClient setPushTokenWithPushToken:token];
 }
 
 - (void) setStoreWithStoreName:(NSString * _Nonnull)store
 {
-    [Metrix setStoreWithStoreName:store];
+    [MetrixClient setStoreWithStoreName:store];
 }
 
 - (void) setAppSecretWithSecretId:(NSInteger)secretId info1:(NSInteger)info1 info2:(NSInteger)info2 info3:(NSInteger)info3 info4:(NSInteger)info4
 {
-    [Metrix setAppSecretWithSecretId:secretId info1:info1 info2:info2 info3:info3 info4:info4];
+    [MetrixClient setAppSecretWithSecretId:secretId info1:info1 info2:info2 info3:info3 info4:info4];
 }
 
 - (void) setDefaultTrackerWithTrackerToken:(NSString * _Nonnull)trackerToken
 {
-    [Metrix setDefaultTrackerWithTrackerToken:trackerToken];
+    [MetrixClient setDefaultTrackerWithTrackerToken:trackerToken];
 }
 
 - (void) setUserIdListener
 {
-    [Metrix setUserIdListener:^(NSString *string) {
+    [MetrixClient setUserIdListener:^(NSString *string) {
         UnitySendMessage([MANAGER_OBJECT UTF8String], [ON_RECEIVE_USER_ID_LISTENER UTF8String], [string UTF8String]);
     }];
 }
 
 - (void) setOnDeeplinkResponseListener:(bool)shouldLaunchDeferredDeeplink
 {
-    [Metrix setOnDeeplinkResponseListener:^BOOL(NSString *string) {
+    [MetrixClient setOnDeeplinkResponseListener:^BOOL(NSString *string) {
         UnitySendMessage([MANAGER_OBJECT UTF8String], [ON_DEFERRED_DEEPLINK UTF8String], [string UTF8String]);
         return shouldLaunchDeferredDeeplink;
     }];
@@ -127,7 +133,7 @@ static NSString *ON_ATTRIBUTION_CHANGE_LISTENER = @"OnAttributionChangeListener"
 
 - (void) setOnAttributionChangedListener
 {
-    [Metrix setOnAttributionChangedListener:^(AttributionData *data) {
+    [MetrixClient setOnAttributionChangedListener:^(AttributionData *data) {
         UnitySendMessage([MANAGER_OBJECT UTF8String], [ON_ATTRIBUTION_CHANGE_LISTENER UTF8String], [data.jsonValue UTF8String]);
     }];
 }
@@ -171,15 +177,14 @@ extern "C" {
         [[MetrixPlugin sharedInstance] initializeWithMetrixAppId:[NSString stringWithUTF8String:appId]];
     }
 
-    int _GetSessionNum()
+    void _SetSessionNumberListener()
     {
-        return (int)[[MetrixPlugin sharedInstance] getSessionNum];
+        [[MetrixPlugin sharedInstance] setSessionNumberListener];
     }
-
-    char * _GetSessionId()
+        
+    void _SetSessionIdListener()
     {
-        NSString *id = [[MetrixPlugin sharedInstance] getSessionId];
-        return convertNSStringToCString(id);
+        [[MetrixPlugin sharedInstance] setSessionIdListener];
     }
     
     void _NewEvent(const char * slug)

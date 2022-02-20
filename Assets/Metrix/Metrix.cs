@@ -18,10 +18,6 @@ namespace ir.metrix.unity
         [DllImport ("__Internal")]
         private static extern void _Initialize(string appId);
         [DllImport ("__Internal")]
-        private static extern int _GetSessionNum();
-        [DllImport ("__Internal")]
-        private static extern string _GetSessionId();
-        [DllImport ("__Internal")]
         private static extern void _NewEvent(string slug);
         [DllImport ("__Internal")]
         private static extern void _NewAttributedEvent(string slug, string customAttributes);
@@ -46,6 +42,10 @@ namespace ir.metrix.unity
         [DllImport ("__Internal")]
         private static extern void _SetUserIdListener();
         [DllImport ("__Internal")]
+        private static extern void _SetSessionNumberListener();
+        [DllImport ("__Internal")]
+        private static extern void _SetSessionIdListener();
+        [DllImport ("__Internal")]
         private static extern void _SetOnDeeplinkResponseListener(bool shouldLaunchDeferredDeeplink);
         [DllImport ("__Internal")]
         private static extern void _SetOnAttributionChangedListener();
@@ -56,6 +56,8 @@ namespace ir.metrix.unity
         private static Action<string> deferredDeeplinkDelegate = null;
         private static Action<MetrixAttribution> userAttributionDelegate = null;
         private static Action<string> userIdDelegate = null;
+        private static Action<string> sessionIdDelegate = null;
+        private static Action<int> sessionNumberDelegate = null;   
         
         private static bool shouldLaunchDeferredDeeplink = true;
 
@@ -67,25 +69,37 @@ namespace ir.metrix.unity
         #endif
         }
 
-        public static int GetSessionNum()
+        public static void SetSessionNumberListener(Action<int> callback)
         {
+            if (metrixManager == null)
+            {
+                metrixManager = new GameObject("MetrixManager");
+                UnityEngine.Object.DontDestroyOnLoad(metrixManager);
+                metrixManager.AddComponent<MetrixMessageHandler>();
+            }
+
+            sessionNumberDelegate = callback;
         #if UNITY_ANDROID && !UNITY_EDITOR
-            return metrixAndroid.CallStatic<Int32>("getSessionNum");
+            metrixAndroid.CallStatic("setSessionNumberListener");
         #elif UNITY_IOS && !UNITY_EDITOR
-            return _GetSessionNum();
-        #else
-            return 0;
+            _SetSessionNumberListener();
         #endif
         }
         
-        public static string GetSessionId()
+        public static void SetSessionIdListener(Action<string> callback)
         {
+            if (metrixManager == null)
+            {
+                metrixManager = new GameObject("MetrixManager");
+                UnityEngine.Object.DontDestroyOnLoad(metrixManager);
+                metrixManager.AddComponent<MetrixMessageHandler>();
+            }
+
+            sessionIdDelegate = callback;
         #if UNITY_ANDROID && !UNITY_EDITOR
-            return metrixAndroid.CallStatic<String>("getSessionId");
+            metrixAndroid.CallStatic("setSessionIdListener");
         #elif UNITY_IOS && !UNITY_EDITOR
-            return _GetSessionId();
-        #else
-            return "";
+            _SetSessionIdListener();
         #endif
         }
         
@@ -284,6 +298,22 @@ namespace ir.metrix.unity
             }
         }
 
+        public static void SessionIDChangeListener(string sessionId)
+        {
+            if (sessionIdDelegate != null)
+            {
+                sessionIdDelegate(sessionId);
+            }
+        }
+
+        public static void SessionNumberChangeListener(string sessionNumber)
+        {
+            if (sessionNumberDelegate != null)
+            {
+                sessionNumberDelegate(Int32.Parse(sessionNumber));
+            }
+        }
+        
         public static void OnAttributionChangeListener(string attributionDataString)
         {
             if (userAttributionDelegate != null)
