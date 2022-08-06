@@ -6,6 +6,7 @@ namespace ir.metrix.unity
         public string acquisitionAdSet { get; set; }
         public string acquisitionCampaign { get; set; }
         public string acquisitionSource { get; set; }
+        public string acquisitionSubId { get; set; }
         public string attributionStatus { get; set; }
 
         public MetrixAttribution() {}
@@ -22,6 +23,7 @@ namespace ir.metrix.unity
             acquisitionAdSet = GetJsonString(jsonNode, "acquisitionAdSet");
             acquisitionCampaign = GetJsonString(jsonNode, "acquisitionCampaign");
             acquisitionSource = GetJsonString(jsonNode, "acquisitionSource");
+            acquisitionSubId = GetJsonString(jsonNode, "acquisitionSubId");
             attributionStatus = GetJsonString(jsonNode, "attributionStatus");
         }
 

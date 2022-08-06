@@ -1,9 +1,9 @@
 <dependencies>
     <androidPackages>
-        <androidPackage spec="ir.metrix:metrix-unity:1.4.0" />
+        <androidPackage spec="ir.metrix:metrix-unity:1.5.1" />
     </androidPackages>
     <iosPods>
-    <iosPod name="Metrix/unity" version="~> 2.0.3" bitcodeEnabled="true"
+    <iosPod name="Metrix/unity" version="~> 2.1.0" bitcodeEnabled="true"
             minTargetSdk="10.0" addToAllTargets="false" />
   </iosPods>
 </dependencies>
